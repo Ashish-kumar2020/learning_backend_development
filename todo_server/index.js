@@ -1,10 +1,19 @@
 const express = require("express");
 const app = express();
+const cors = require("cors");
 
 app.use(express.json());
+app.use(
+  cors({
+    origin: "http://127.0.0.1:5500", // Allow requests from your frontend
+    methods: "GET,POST,PUT,DELETE,OPTIONS", // Allow specific methods
+    allowedHeaders: "Content-Type,Authorization", // Allow specific headers
+  })
+);
 const todos = [
   {
-    task: "Learning nodejs",
+    title: "Learning nodejs",
+    description: "Learning Nodejs from Harkirat Singh",
     id: 234,
   },
 ];
