@@ -1,0 +1,17 @@
+{
+  "name": "week-04_assignment",
+  "version": "1.0.0",
+  "description": "Doing week 4 assignment",
+  "main": "1-logginIncommingRequest.js",
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [
+    "#100xdevs"
+  ],
+  "author": "Ashish Kumar Singh",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.21.0"
+  }
+}
