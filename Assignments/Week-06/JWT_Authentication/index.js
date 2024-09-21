@@ -1,11 +1,41 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const cors = require("cors");
 const app = express();
 const PORT_NUMBER = 4006;
 app.use(express.json());
 const JWT_SECERET = "learningnodejs";
-
+app.use(
+  cors({
+    origin: "http://127.0.0.1:5500",
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: ["Content-Type", "token"],
+  })
+);
 let userDetails = [];
+
+function auth(req, res, next) {
+  const token = req.headers.token;
+
+  if (!token) {
+    return res.status(401).json({
+      message: "No token provided",
+    });
+  }
+
+  try {
+    const decodedInformationToken = jwt.verify(token, JWT_SECERET);
+    const decodedToken = jwt.decode(token);
+    console.log(decodedToken);
+    console.log(decodedInformationToken, "username");
+    req.decodedInformationToken = decodedInformationToken;
+    next();
+  } catch (error) {
+    res.status(401).json({
+      message: "Invalid or expired token",
+    });
+  }
+}
 
 app.post("/signup", (req, res) => {
   const userName = req.body.username;
@@ -45,19 +75,19 @@ app.post("/signin", (req, res) => {
   }
 });
 
-app.get("/userdetails", (req, res) => {
-  const token = req.headers.token;
-  const decodedInformationToken = jwt.verify(token, JWT_SECERET);
-  const userName = decodedInformationToken.userName;
+app.get("/userdetails", auth, (req, res) => {
+  const userName = req.decodedInformationToken.userName;
+  console.log(userName);
+  const user = userDetails.find((u) => u.userName === userName);
 
-  const user = userDetails.find((u) => u.userName == userName);
   if (user) {
-    res.send({
-      user: user,
+    res.status(200).json({
+      message: "User found",
+      userDetails: userDetails,
     });
   } else {
-    res.status(401).send({
-      message: "Unauthorized",
+    res.status(401).status({
+      message: "No user found",
     });
   }
 });
