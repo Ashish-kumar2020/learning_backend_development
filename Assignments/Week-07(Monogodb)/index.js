@@ -1,5 +1,6 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
+const bcrypt = require("bcrypt");
 const { UserModel, TodoModel } = require("./Db");
 const { auth, JWT_SECRET } = require("./auth");
 const mongoose = require("mongoose");
@@ -17,9 +18,11 @@ app.post("/signup", async function (req, res) {
   const password = req.body.password;
   const name = req.body.name;
 
+  const hashPassword = await bcrypt.hash(password, 10);
+
   await UserModel.create({
     email: email,
-    password: password,
+    password: hashPassword,
     name: name,
   });
 
@@ -34,10 +37,10 @@ app.post("/signin", async function (req, res) {
 
   const userPresent = await UserModel.findOne({
     email: email,
-    password: password,
   });
-  console.log(userPresent._id);
-  if (userPresent) {
+
+  const passwordMatch = bcrypt.compare(password, userPresent.password);
+  if (userPresent && passwordMatch) {
     const token = jwt.sign(
       {
         id: userPresent._id.toString(),
@@ -46,7 +49,7 @@ app.post("/signin", async function (req, res) {
     );
 
     res.status(200).json({
-      message: "Generated Token ",
+      message: "User Successfully Logged In || Generated Token ",
       token: token,
     });
   } else {
