@@ -1,6 +1,7 @@
 const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
+const { z } = require("zod");
 const { UserModel, TodoModel } = require("./Db");
 const { auth, JWT_SECRET } = require("./auth");
 const mongoose = require("mongoose");
@@ -14,6 +15,21 @@ app.use(express.json());
 const PORT_NUMBER = 4005;
 
 app.post("/signup", async function (req, res) {
+  const userBody = z.object({
+    email: z.string().min(3).max(100).email(),
+    password: z.string().min(3).max(100),
+    name: z.string().min(3).max(100),
+  });
+
+  //   we should use safeParse because it does not break the code. Parse breaks the code
+  const parseData = userBody.safeParse(req.body);
+  if (!parseData.success) {
+    res.status(403).json({
+      message: "Incorrect Details",
+      error: parseData.error,
+    });
+    return;
+  }
   const email = req.body.email;
   const password = req.body.password;
   const name = req.body.name;
