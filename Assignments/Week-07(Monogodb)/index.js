@@ -2,6 +2,7 @@ const express = require("express");
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcrypt");
 const { z } = require("zod");
+const cors = require("cors");
 const { UserModel, TodoModel } = require("./Db");
 const { auth, JWT_SECRET } = require("./auth");
 const mongoose = require("mongoose");
@@ -10,6 +11,13 @@ mongoose.connect(
   "mongodb+srv://ashishsinghk2020:uaqSQU6jgIcMPcBP@cluster0.2gwff.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 );
 
+app.use(
+  cors({
+    origin: "http://127.0.0.1:5500",
+    methods: "GET,POST,PUT,DELETE,OPTIONS",
+    allowedHeaders: ["Content-Type", "token"],
+  })
+);
 app.use(express.json());
 
 const PORT_NUMBER = 4005;
@@ -81,7 +89,7 @@ app.post("/createtodo", auth, async function (req, res) {
   const title = req.body.title;
   const description = req.body.description;
   const done = req.body.done;
-
+  console.log(req.body);
   await TodoModel.create({
     userId: userID,
     title: title,
