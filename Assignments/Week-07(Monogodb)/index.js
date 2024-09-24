@@ -75,12 +75,70 @@ app.post("/signin", async function (req, res) {
   }
 });
 
-app.post("/todo", auth, function (req, res) {
+app.post("/createtodo", auth, async function (req, res) {
   console.log("user verified");
+  const userID = req.userId;
+  const title = req.body.title;
+  const description = req.body.description;
+  const done = req.body.done;
+
+  await TodoModel.create({
+    userId: userID,
+    title: title,
+    description: description,
+    done: done,
+  });
+
+  res.status(200).json({
+    message: "Todo Added Successfuly",
+  });
 });
 
-app.get("fetchtodos", function (req, res) {});
+app.get("/fetchtodos", auth, async function (req, res) {
+  const userID = req.userId;
+  try {
+    const getUsersTodo = await TodoModel.find({ userId: userID });
+    res.status(200).json({
+      message: "All Todos Fetched Successfully",
+      usertodos: getUsersTodo,
+    });
+  } catch (e) {
+    res
+      .status(500)
+      .json({ message: "Error fetching todos", error: error.message });
+  }
+});
 
+app.post("/markdone", auth, async function (req, res) {
+  const userID = req.userId;
+  const todoId = req.body.todoId;
+  const done = req.body.done;
+
+  try {
+    const updateTodo = await TodoModel.findOneAndUpdate(
+      {
+        _id: todoId,
+        userId: userID,
+      },
+      { done: done },
+      { new: true }
+    );
+    if (!updateTodo) {
+      return res
+        .status(404)
+        .json({ message: "Todo not found or not authorized" });
+    }
+    res.status(200).json({
+      message: "Todo status updated successfully",
+      todo: updateTodo,
+    });
+  } catch (e) {
+    res.status(500).json({
+      message: "Error updating todo status",
+      error: error.message,
+    });
+  }
+});
 app.listen(PORT_NUMBER, () => {
   console.log(`Server is up and running on PORT_NUMBER ${PORT_NUMBER}`);
 });
