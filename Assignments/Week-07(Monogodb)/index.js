@@ -121,7 +121,7 @@ app.post("/markdone", auth, async function (req, res) {
         userId: userID,
       },
       { done: done },
-      { new: true }
+      { new: true } // this will return the updated list of todos
     );
     if (!updateTodo) {
       return res
@@ -136,6 +136,52 @@ app.post("/markdone", auth, async function (req, res) {
     res.status(500).json({
       message: "Error updating todo status",
       error: error.message,
+    });
+  }
+});
+
+app.delete("/deletodo", auth, async function (req, res) {
+  const userID = req.userId;
+  const todoId = req.body.todoId;
+
+  const deleteTodo = await TodoModel.deleteOne({
+    _id: todoId,
+    userId: userID,
+  });
+
+  if (!deleteTodo) {
+    res.status(403).json({
+      message: "There is Problem in deleting the todo",
+    });
+  } else {
+    res.status(200).json({
+      message: "Todo Deleted Successfully",
+    });
+  }
+});
+
+app.patch("/updatetodo", auth, async function (req, res) {
+  const userID = req.userId;
+  const todoId = req.body.todoId;
+  const description = req.body.description;
+
+  const updateTodo = await TodoModel.findOneAndUpdate(
+    {
+      _id: todoId,
+      userId: userID,
+    },
+    { description: description },
+    { new: true }
+  );
+
+  if (!updateTodo) {
+    res.status(403).json({
+      message: "No Todo Found || There is problem in deleting the todo",
+    });
+  } else {
+    res.status(200).json({
+      message: "Todo Updated Successfully",
+      updatedTodo: updateTodo,
     });
   }
 });
