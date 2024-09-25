@@ -11,13 +11,22 @@ mongoose.connect(
   "mongodb+srv://ashishsinghk2020:uaqSQU6jgIcMPcBP@cluster0.2gwff.mongodb.net/?retryWrites=true&w=majority&appName=Cluster0"
 );
 
+// app.use(
+//   cors({
+//     origin: "http://127.0.0.1:5500",
+//     methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
+//     allowedHeaders: ["Content-Type", "token"],
+//   })
+// );
 app.use(
   cors({
-    origin: "http://127.0.0.1:5500",
-    methods: "GET,POST,PUT,DELETE,OPTIONS",
-    allowedHeaders: ["Content-Type", "token"],
+    origin: "http://127.0.0.1:5500", // Allow your front-end origin
+    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"], // Allow necessary methods
+    allowedHeaders: ["Content-Type", "token"], // Allow specific headers
+    credentials: true, // Enable this if you need to allow cookies or authorization headers
   })
 );
+
 app.use(express.json());
 
 const PORT_NUMBER = 4005;
@@ -168,7 +177,7 @@ app.delete("/deletodo", auth, async function (req, res) {
   }
 });
 
-app.patch("/updatetodo", auth, async function (req, res) {
+app.post("/updatetodo", auth, async function (req, res) {
   const userID = req.userId;
   const todoId = req.body.todoId;
   const description = req.body.description;
